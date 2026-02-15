@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galeria</title>
+
+<style>
+body {
+    margin: 0;
+    background: #000;
+    overflow: hidden;
+    font-family: sans-serif;
+    color: #fff;
+}
+
+.viewer {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.viewer img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: opacity 0.4s ease;
+}
+
+.arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 60px;
+    cursor: pointer;
+    padding: 20px;
+    opacity: 0.6;
+}
+.arrow:hover { opacity: 1; }
+
+.left { left: 0; }
+.right { right: 0; }
+
+.thumbs {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.75);
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    overflow-x: auto;
+}
+
+.thumbs img {
+    height: 60px;
+    cursor: pointer;
+    opacity: 0.5;
+}
+.thumbs img.active,
+.thumbs img:hover {
+    opacity: 1;
+    border: 2px solid #fff;
+}
+
+.controls {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+button {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+button:hover { background: rgba(255,255,255,0.4); }
+
+.counter {
+    font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="viewer">
+    <img id="mainImage">
+</div>
+
+<div class="arrow left" onclick="prev()">❮</div>
+<div class="arrow right" onclick="next()">❯</div>
+
+<div class="controls">
+    <button onclick="toggleSlideshow()">⏯</button>
+    <button onclick="toggleFullscreen()">⛶</button>
+    <div class="counter" id="counter"></div>
+</div>
+
+<div class="thumbs" id="thumbContainer"></div>
+
+<script>
+const images = [
+    "TU_WKLEJ_LINK1?raw=1",
+    "TU_WKLEJ_LINK2?raw=1",
+    "TU_WKLEJ_LINK3?raw=1",
+    "TU_WKLEJ_LINK4?raw=1",
+    "TU_WKLEJ_LINK5?raw=1",
+    "TU_WKLEJ_LINK6?raw=1",
+    "TU_WKLEJ_LINK7?raw=1"
+];
+
+let current = 0;
+let slideshow = null;
+
+const mainImage = document.getElementById("mainImage");
+const thumbContainer = document.getElementById("thumbContainer");
+const counter = document.getElementById("counter");
+
+function showImage(index) {
+    current = index;
+    mainImage.style.opacity = 0;
+
+    setTimeout(() => {
+        mainImage.src = images[current];
+        mainImage.style.opacity = 1;
+        counter.textContent = (current+1) + " / " + images.length;
+
+        document.querySelectorAll(".thumbs img").forEach((img, i) => {
+            img.classList.toggle("active", i === current);
+        });
+    }, 200);
+}
+
+function next() {
+    current = (current + 1) % images.length;
+    showImage(current);
+}
+
+function prev() {
+    current = (current - 1 + images.length) % images.length;
+    showImage(current);
+}
+
+function toggleSlideshow() {
+    if (slideshow) {
+        clearInterval(slideshow);
+        slideshow = null;
+    } else {
+        slideshow = setInterval(next, 3000);
+    }
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") next();
+    if (e.key === "ArrowLeft") prev();
+    if (e.key === " ") toggleSlideshow();
+    if (e.key.toLowerCase() === "f") toggleFullscreen();
+});
+
+images.forEach((src, index) => {
+    const img = document.createElement("img");
+    img.src = src;
+    img.onclick = () => showImage(index);
+    thumbContainer.appendChild(img);
+});
+
+showImage(0);
+</script>
+
+</body>
+</html>
