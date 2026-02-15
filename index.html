@@ -192,11 +192,19 @@ function prev() {
 /* ---------- SLIDESHOW 5 SEK ---------- */
 
 function toggleSlideshow() {
+
+    // jeżeli pierwsze zdjęcie jeszcze nie istnieje → załaduj je
+    if (!mainImage.src || mainImage.src === window.location.href) {
+        showImage(current);
+    }
+
     if (slideshow) {
         clearInterval(slideshow);
         slideshow = null;
     } else {
-        slideshow = setInterval(next, 5000);
+        slideshow = setInterval(() => {
+            next();
+        }, 5000);
     }
 }
 
@@ -239,3 +247,4 @@ images.forEach((src, index) => {
 
 </body>
 </html>
+
