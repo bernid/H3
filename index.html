@@ -14,6 +14,8 @@ body {
     color: #fff;
 }
 
+/* ---------- DUŻE ZDJĘCIE ---------- */
+
 .viewer {
     position: fixed;
     width: 100%;
@@ -24,11 +26,13 @@ body {
 }
 
 .viewer img {
-    max-width: 100%;
+    max-width: calc(100% - 160px);
     max-height: 100%;
     object-fit: contain;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.35s ease;
 }
+
+/* ---------- STRZAŁKI ---------- */
 
 .arrow {
     position: fixed;
@@ -37,61 +41,90 @@ body {
     font-size: 60px;
     cursor: pointer;
     padding: 20px;
-    opacity: 0.6;
+    opacity: 0.55;
+    user-select: none;
 }
 .arrow:hover { opacity: 1; }
 
 .left { left: 0; }
-.right { right: 0; }
+.right { right: 150px; }
+
+/* ---------- MINIATURKI PRAWA STRONA ---------- */
 
 .thumbs {
     position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: rgba(0,0,0,0.75);
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 150px;
+    background: rgba(0,0,0,0.85);
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    padding: 10px;
-    overflow-x: auto;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 5px;
+    overflow-y: auto;
 }
 
 .thumbs img {
-    height: 60px;
+    width: 120px;
+    margin: 7px 0;
     cursor: pointer;
-    opacity: 0.5;
+    opacity: 0.45;
+    transition: 0.2s;
 }
+
 .thumbs img.active,
 .thumbs img:hover {
     opacity: 1;
     border: 2px solid #fff;
 }
 
+/* ---------- GÓRNY PANEL ---------- */
+
 .controls {
     position: fixed;
-    top: 15px;
-    right: 20px;
+    top: 12px;
+    left: 15px;
     display: flex;
     gap: 15px;
     align-items: center;
+    z-index: 20;
 }
 
 button {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.15);
     border: none;
     color: #fff;
-    padding: 6px 10px;
+    padding: 6px 12px;
     cursor: pointer;
+    font-size: 18px;
 }
-button:hover { background: rgba(255,255,255,0.4); }
+button:hover { background: rgba(255,255,255,0.35); }
 
 .counter {
     font-size: 16px;
+}
+
+/* ---------- OVERLAY START ---------- */
+
+#startOverlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    z-index: 50;
 }
 </style>
 </head>
 
 <body>
+
+<div id="startOverlay">Kliknij aby otworzyć galerię</div>
 
 <div class="viewer">
     <img id="mainImage">
@@ -101,7 +134,7 @@ button:hover { background: rgba(255,255,255,0.4); }
 <div class="arrow right" onclick="next()">❯</div>
 
 <div class="controls">
-    <button onclick="toggleSlideshow()">⏯</button>
+    <button onclick="toggleSlideshow()">⟳ pokaz</button>
     <button onclick="toggleFullscreen()">⛶</button>
     <div class="counter" id="counter"></div>
 </div>
@@ -109,13 +142,16 @@ button:hover { background: rgba(255,255,255,0.4); }
 <div class="thumbs" id="thumbContainer"></div>
 
 <script>
+
+/* ---- TU WKLEJ SWOJE LINKI DROPBOX raw=1 ---- */
+
 const images = [
-    "https://www.dropbox.com/scl/fi/ip6e64es9dzf5g0b41otd/P1180789-kopia.jpg?rlkey=rb3idfqpccbktdm6m54vby5xn&st=7rb8yby4&raw=1",
-    "https://www.dropbox.com/scl/fi/8qd99nbtgpree1t7yuq2i/IMG_20260214_110617-kopia.jpg?rlkey=95l2l19ttcpl108qafjoluj2f&st=3207c5u3&raw=1",
-    "https://www.dropbox.com/scl/fi/mw6lwb6n60s5ll9j0fvz4/IMG_20260214_110813-kopia.jpg?rlkey=7j2soqu1ojlycinebchh0ojh4&st=g4beu2o4&raw=1",
-    "https://www.dropbox.com/scl/fi/gfdniepj9lbm6ozcfaytz/P1180783-kopia.jpg?rlkey=r2eq0ooxwxdddtb9jy0sf81iq&st=1cdvakve&raw=1",
-    "https://www.dropbox.com/scl/fi/lty9lzdujbhz3lou7knk8/IMG_20260214_110746-kopia.jpg?rlkey=gcyruv7kj81i9tbnoiw49znck&st=d649j4mx&raw=1",
-    "https://www.dropbox.com/scl/fi/q473cn7f13jicev9h54dp/P1180764-kopia.jpg?rlkey=3pjjodq57brbgef82ywkraqld&st=2mh3beq5&raw=1"
+"https://www.dropbox.com/scl/fi/ip6e64es9dzf5g0b41otd/P1180789-kopia.jpg?rlkey=rb3idfqpccbktdm6m54vby5xn&st=7rb8yby4&raw=1",
+"https://www.dropbox.com/scl/fi/8qd99nbtgpree1t7yuq2i/IMG_20260214_110617-kopia.jpg?rlkey=95l2l19ttcpl108qafjoluj2f&st=3207c5u3&raw=1",
+"https://www.dropbox.com/scl/fi/mw6lwb6n60s5ll9j0fvz4/IMG_20260214_110813-kopia.jpg?rlkey=7j2soqu1ojlycinebchh0ojh4&st=g4beu2o4&raw=1",
+"https://www.dropbox.com/scl/fi/gfdniepj9lbm6ozcfaytz/P1180783-kopia.jpg?rlkey=r2eq0ooxwxdddtb9jy0sf81iq&st=1cdvakve&raw=1",
+"https://www.dropbox.com/scl/fi/lty9lzdujbhz3lou7knk8/IMG_20260214_110746-kopia.jpg?rlkey=gcyruv7kj81i9tbnoiw49znck&st=d649j4mx&raw=1",
+"https://www.dropbox.com/scl/fi/q473cn7f13jicev9h54dp/P1180764-kopia.jpg?rlkey=3pjjodq57brbgef82ywkraqld&st=2mh3beq5&raw=1"
 ];
 
 let current = 0;
@@ -124,6 +160,9 @@ let slideshow = null;
 const mainImage = document.getElementById("mainImage");
 const thumbContainer = document.getElementById("thumbContainer");
 const counter = document.getElementById("counter");
+const overlay = document.getElementById("startOverlay");
+
+/* ---------- WYŚWIETLANIE ---------- */
 
 function showImage(index) {
     current = index;
@@ -137,7 +176,7 @@ function showImage(index) {
         document.querySelectorAll(".thumbs img").forEach((img, i) => {
             img.classList.toggle("active", i === current);
         });
-    }, 200);
+    }, 150);
 }
 
 function next() {
@@ -150,14 +189,18 @@ function prev() {
     showImage(current);
 }
 
+/* ---------- SLIDESHOW 5 SEK ---------- */
+
 function toggleSlideshow() {
     if (slideshow) {
         clearInterval(slideshow);
         slideshow = null;
     } else {
-        slideshow = setInterval(next, 3000);
+        slideshow = setInterval(next, 5000);
     }
 }
+
+/* ---------- FULLSCREEN ---------- */
 
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
@@ -167,6 +210,16 @@ function toggleFullscreen() {
     }
 }
 
+/* ---------- KLIK START = FULLSCREEN ---------- */
+
+overlay.addEventListener("click", () => {
+    overlay.style.display = "none";
+    showImage(0);
+    document.documentElement.requestFullscreen();
+});
+
+/* ---------- KLAWISZE ---------- */
+
 document.addEventListener("keydown", e => {
     if (e.key === "ArrowRight") next();
     if (e.key === "ArrowLeft") prev();
@@ -174,16 +227,15 @@ document.addEventListener("keydown", e => {
     if (e.key.toLowerCase() === "f") toggleFullscreen();
 });
 
+/* ---------- MINIATURKI ---------- */
+
 images.forEach((src, index) => {
     const img = document.createElement("img");
     img.src = src;
     img.onclick = () => showImage(index);
     thumbContainer.appendChild(img);
 });
-
-showImage(0);
 </script>
 
 </body>
 </html>
-
